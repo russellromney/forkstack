@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Environment management script for Fork Stack.
+Environment management script for forkstack.
 
 Usage:
     python envs.py create <env-name>   - Create new environment

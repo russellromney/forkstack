@@ -1,0 +1,23 @@
+[workspace]
+resolver = "2"
+members = ["cli", "forkstack"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/russellromney/forkstack"
+homepage = "https://forkstack.xyz"
+
+[workspace.dependencies]
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+thiserror = "1"
+reqwest = { version = "0.12", features = ["json"] }
+toml = "0.8"
+aws-sdk-s3 = "1"
+aws-config = "1"
+dirs = "5"

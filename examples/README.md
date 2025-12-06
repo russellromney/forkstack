@@ -1,12 +1,12 @@
-# Fork Stack Examples
+# forkstack Examples
 
-This directory contains example implementations of the Fork Stack pattern.
+This directory contains example implementations of the forkstack pattern.
 
 ## Simple Demo
 
 **`simple-app.py`** - Minimal example showing how environment utilities work
 
-Run it to see how Fork Stack routes resources:
+Run it to see how forkstack routes resources:
 ```bash
 # Default environment (dev)
 python examples/simple-app.py
@@ -38,7 +38,7 @@ For a complete production implementation, see:
 
 ## Contributing Examples
 
-Have an example using Fork Stack? Submit a PR!
+Have an example using forkstack? Submit a PR!
 
 Ideas:
 - Next.js + Supabase + R2

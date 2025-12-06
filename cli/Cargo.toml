@@ -1,0 +1,18 @@
+[package]
+name = "forks-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "forkstack CLI - instant, isolated development environments"
+
+[[bin]]
+name = "forks"
+path = "src/main.rs"
+
+[dependencies]
+forkstack = { path = "../forkstack" }
+clap.workspace = true
+tokio.workspace = true
+anyhow.workspace = true

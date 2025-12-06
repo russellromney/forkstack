@@ -1,17 +1,17 @@
-# Fork Stack
+# forkstack
 
 **Instant, isolated development environments using zero-copy database and storage forks.**
 
-Fork Stack is a pattern for creating fully isolated development environments in seconds. Each developer gets their own copy of your entire stack—database, object storage, and local state—without duplicating data or slowing down.
+forkstack is a pattern for creating fully isolated development environments in seconds. Each developer gets their own copy of your entire stack—database, object storage, and local state—without duplicating data or slowing down.
 
-## Why Fork Stack?
+## Why forkstack?
 
 Traditional development environments share databases or require expensive duplication:
 - ❌ **Shared dev DB**: Developers step on each other's data
 - ❌ **DB per developer**: Expensive, slow to provision, hard to keep in sync
 - ❌ **Local-only**: Can't test with production-like data
 
-Fork Stack gives you the best of all worlds:
+forkstack gives you the best of all worlds:
 - ✅ **Instant creation**: New environments in seconds, not minutes
 - ✅ **Zero cost**: Fork-on-write means no data duplication charges
 - ✅ **Full isolation**: Each environment has its own DB, storage, and state
@@ -20,7 +20,7 @@ Fork Stack gives you the best of all worlds:
 
 ## How It Works
 
-Fork Stack uses three key technologies:
+forkstack uses three key technologies:
 
 1. **Database branching** - Services like Turso, Neon, or PlanetScale that support instant branches
 2. **Storage forking** - Tigris bucket forks (or bucket-per-environment)
@@ -59,7 +59,7 @@ Perfect isolation per environment
 
 ### 1. Choose Your Stack
 
-Fork Stack works with any combination of:
+forkstack works with any combination of:
 
 **Databases** (pick one):
 - [Turso](https://turso.tech) - SQLite branches (recommended)
@@ -112,22 +112,27 @@ make envs-delete alice
 
 ## Repository Structure
 
-Fork Stack uses a hybrid organization for maximum flexibility:
+forkstack uses a hybrid organization for maximum flexibility:
 
 ```
 templates/
 ├── base/{language}/           # Core pattern for each language
+│   └── python/               # ✅ Abstract base with plugin points
 ├── implementations/           # Pluggable backends
-│   ├── databases/            # Turso, Neon, PlanetScale, etc.
-│   ├── storage/              # Tigris, S3, R2, etc.
-│   └── secrets/              # Doppler, AWS Secrets, Vault, etc.
-└── stacks/{lang-db-storage}/ # Pre-built combinations
+│   ├── databases/
+│   │   └── turso/            # ✅ SQLite branching
+│   ├── storage/
+│   │   └── tigris/           # ✅ S3-compatible bucket forks
+│   └── secrets/
+│       └── doppler/          # ✅ Environment-aware secrets
+└── stacks/
+    └── python-turso-tigris-doppler/  # ✅ Pre-built complete stack
 ```
 
-**Three ways to use Fork Stack:**
+**Three ways to use forkstack:**
 
-1. **Grab a pre-built stack** - Copy entire `stacks/python-turso-tigris/` directory
-2. **Mix and match** - Combine `base/python/` + implementations you want
+1. **Grab a pre-built stack** (Recommended) - Copy entire `stacks/python-turso-tigris-doppler/`
+2. **Mix and match** (Advanced) - Combine `base/python/` + implementations you want
 3. **Contribute** - Add new languages, databases, or storage backends
 
 See [IMPLEMENTATION.md](IMPLEMENTATION.md) for the full roadmap and architecture.
@@ -175,9 +180,40 @@ See `examples/romneys-app/` for a complete FastAPI + Preact implementation using
 - [Storage Options](docs/storage.md) - Tigris vs S3 vs R2
 - [Troubleshooting](docs/troubleshooting.md) - Common issues
 
+## Migration Path
+
+If you previously used the old template structure:
+
+### Old Way
+```bash
+cp templates/env_utils.py your-project/
+cp templates/envs.py your-project/
+```
+
+### New Way (Recommended)
+```bash
+# Complete, production-ready stack
+cp -r stacks/python-turso-tigris-doppler/* your-project/
+```
+
+### Mix and Match (Advanced)
+```bash
+# Base template
+cp templates/base/python/env_utils.py your-project/app/
+
+# Add implementations you want
+cp templates/implementations/databases/turso/python.py your-project/
+cp templates/implementations/storage/tigris/python.py your-project/
+cp templates/implementations/secrets/doppler/python.py your-project/
+
+# Merge implementations into env_utils.py
+```
+
+The old templates remain available but are now marked as reference implementations. Use the new pre-built stacks or mix-and-match approach for cleaner, more modular code.
+
 ## Contributing
 
-Fork Stack is a pattern, not a framework. Feel free to:
+forkstack is a pattern, not a framework. Feel free to:
 - Share your implementation
 - Improve the templates
 - Add support for new databases/storage

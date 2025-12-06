@@ -1,5 +1,5 @@
 """
-Environment utilities for Fork Stack pattern.
+Environment utilities for forkstack pattern.
 
 This module provides environment-aware resource resolution.
 All app code should use these utilities instead of hardcoding paths or reading env vars directly.

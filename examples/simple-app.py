@@ -1,5 +1,5 @@
 """
-Simple example showing Fork Stack pattern in action.
+Simple example showing forkstack pattern in action.
 
 This demonstrates how environment utilities automatically route to the
 correct resources based on .current-env file.
@@ -20,9 +20,9 @@ from env_utils import (
 
 
 def main():
-    """Show how Fork Stack routes resources."""
+    """Show how forkstack routes resources."""
     print("=" * 60)
-    print("Fork Stack Environment Demo")
+    print("forkstack Environment Demo")
     print("=" * 60)
 
     # Get current environment

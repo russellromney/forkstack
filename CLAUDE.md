@@ -1,6 +1,6 @@
 # Claude Development Guidelines
 
-Guidelines for AI assistants working on this project using Fork Stack pattern.
+Guidelines for AI assistants working on this project using forkstack pattern.
 
 ## Core Principles
 
@@ -37,7 +37,7 @@ Always ask first: "Should I create a commit/push/PR?"
 - Edit existing files, only Write for new files
 - Watch for security vulnerabilities
 
-## Fork Stack Pattern
+## forkstack Pattern
 
 **Environment utilities:**
 ```python
@@ -74,7 +74,7 @@ Each environment has its own:
 
 **Source:**
 - `app/` - Application code
-- `app/env_utils.py` - Environment utilities (Fork Stack)
+- `app/env_utils.py` - Environment utilities (forkstack)
 - `scripts/` - Utility scripts (envs, backups, etc.)
 - `tests/` - Test suite
 

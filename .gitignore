@@ -1,12 +1,14 @@
+# Rust
+target/
+Cargo.lock
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -21,10 +23,16 @@ wheels/
 *.egg
 
 # Virtual environments
+.venv/
 venv/
 env/
 ENV/
-.venv
+
+# uv
+.python-version
+
+# MkDocs
+site/
 
 # IDEs
 .vscode/
@@ -37,7 +45,12 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Project specific
+# Secrets
 .env
 .env.local
 *.log
+
+# forkstack config (contains org info)
+.forkstack.toml
+
+.pytest_cache

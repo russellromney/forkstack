@@ -1,247 +1,145 @@
-# Getting Started with Fork Stack
+# Getting Started with forkstack
 
-This guide walks you through setting up Fork Stack in your project from scratch.
+This guide walks you through setting up forkstack in your project.
+
+## Installation
+
+```bash
+curl -LsSf https://forkstack.xyz/install.sh | sh
+```
+
+Or with Cargo:
+
+```bash
+cargo install forkstack
+```
 
 ## Prerequisites
 
-- Python 3.10+ with `uv` installed
-- CLI for your database service (turso, neon, or pscale)
-- CLI for your storage service (aws, tigris, etc.)
-- Make
+You'll need accounts with:
 
-## Step 1: Choose Your Stack
+- **Database**: [Turso](https://turso.tech) (SQLite) - get your API token from the dashboard
+- **Storage** (optional): [Tigris](https://www.tigrisdata.com/) or AWS S3
 
-Fork Stack requires two services that support forking/branching:
+## Step 1: Configure Your Project
 
-### Database Options
+Create `.forkstack.toml` in your project root:
 
-Pick one:
+```toml
+[database]
+provider = "turso"
+organization = "your-turso-org"    # Your Turso organization name
+production = "my-app-prod"         # Your production database name
+group = "default"                  # Optional, defaults to "default"
 
-**Turso (SQLite)** - Recommended for most projects
-```bash
-brew install tursodatabase/tap/turso
-turso auth login
+# Optional: Configure storage buckets to fork
+[storage.uploads]
+provider = "tigris"
+bucket = "my-app-uploads"
+endpoint = "https://fly.storage.tigris.dev"
+prefix = "forks/"
+
+[storage.assets]
+provider = "s3"
+bucket = "my-app-assets"
+region = "us-east-1"
+prefix = "forks/"
 ```
 
-**Neon (Postgres)**
-```bash
-npm install -g neonctl
-neon auth login
-```
-
-**PlanetScale (MySQL)**
-```bash
-brew install planetscale/tap/pscale
-pscale auth login
-```
-
-### Storage Options
-
-**Tigris (S3-compatible)** - Recommended (supports bucket forks)
-```bash
-# Install AWS CLI (Tigris is S3-compatible)
-brew install awscli
-# Configure with Tigris credentials
-aws configure
-```
-
-**AWS S3**
-```bash
-brew install awscli
-aws configure
-```
-
-**Cloudflare R2**
-```bash
-npm install -g wrangler
-wrangler login
-```
-
-## Step 2: Copy Templates
+## Step 2: Set Environment Variables
 
 ```bash
-# Create scripts directory if needed
-mkdir -p scripts
+# Turso API token (get from Turso dashboard)
+export TURSO_API_TOKEN="your-token-here"
 
-# Copy core templates
-cp path/to/fork-stack/templates/env_utils.py app/env_utils.py
-cp path/to/fork-stack/templates/envs.py scripts/envs.py
-cp path/to/fork-stack/templates/CLAUDE.md CLAUDE.md
-
-# Append environment commands to Makefile
-cat path/to/fork-stack/templates/Makefile.envs >> Makefile
+# For S3/Tigris storage (optional)
+export AWS_ACCESS_KEY_ID="your-key"
+export AWS_SECRET_ACCESS_KEY="your-secret"
 ```
 
-## Step 3: Configure for Your Project
-
-### 1. Update `app/env_utils.py`
-
-```python
-# Change PROJECT_NAME
-PROJECT_NAME = "your-project-name"
-
-# Update get_database_url() for your database service
-def get_database_url() -> str:
-    env = get_current_env()
-
-    # For Turso (SQLite):
-    if env == 'prod':
-        return f'libsql://{PROJECT_NAME}.turso.io'
-    return f'libsql://{PROJECT_NAME}-{env}.turso.io'
-
-    # For Neon (Postgres):
-    # if env == 'prod':
-    #     return f'postgresql://...'
-    # return f'postgresql://{PROJECT_NAME}-{env}.neon.tech'
-```
-
-### 2. Update `scripts/envs.py`
-
-Configure the CLI commands for your services:
-
-```python
-PROJECT_NAME = "your-project-name"
-PROTECTED_ENVS = ["dev", "prod"]
-
-# For Turso:
-DB_CLI = "turso"
-DB_CREATE_CMD = lambda env: f"turso db create {PROJECT_NAME}-{env}"
-DB_DELETE_CMD = lambda env: f"turso db destroy {PROJECT_NAME}-{env} -y"
-DB_URL_CMD = lambda env: f"turso db show {PROJECT_NAME}-{env} --url"
-DB_TOKEN_CMD = lambda env: f"turso db tokens create {PROJECT_NAME}-{env}"
-
-# For Tigris/S3:
-STORAGE_CREATE_CMD = lambda env: f"aws s3api create-bucket --bucket {PROJECT_NAME}-bucket-{env}"
-STORAGE_DELETE_CMD = lambda env: f"aws s3 rb s3://{PROJECT_NAME}-bucket-{env} --force"
-```
-
-### 3. Update Your App Code
-
-Replace hardcoded paths/env vars with utilities:
-
-**Before:**
-```python
-bucket = os.getenv("BUCKET_NAME")
-db_url = os.getenv("DATABASE_URL")
-```
-
-**After:**
-```python
-from app.env_utils import get_bucket_name, get_database_url
-
-bucket = get_bucket_name()
-db_url = get_database_url()
-```
-
-## Step 4: Create Production and Dev Environments
+## Step 3: Create Your First Fork
 
 ```bash
-# Create prod database and bucket
-make envs-new prod
-
-# Create dev database and bucket
-make envs-new dev
+$ forks create
+Created fork: bright-wave-42
+Database: libsql://bright-wave-42-your-org.turso.io
+Storage:  uploads: s3://my-app-uploads/forks/bright-wave-42/
+          assets: s3://my-app-assets/forks/bright-wave-42/
 ```
 
-This creates:
-- Database branches: `your-project`, `your-project-dev`
-- Storage buckets: `your-project-bucket-prod`, `your-project-bucket-dev`
-- `.current-env` file pointing to `dev`
-- `.env.local` with dev credentials
-
-## Step 5: Update .gitignore
+Or with a specific name:
 
 ```bash
-echo ".current-env" >> .gitignore
-echo ".env.local" >> .gitignore
-echo "*.*.db/" >> .gitignore  # For local database files
+$ forks create -n alice
+Created fork: alice
+Database: libsql://alice-your-org.turso.io
+Storage:  uploads: s3://my-app-uploads/forks/alice/
+          assets: s3://my-app-assets/forks/alice/
 ```
 
-## Step 6: Test It
+## Step 4: Use Your Fork
+
+Update your app's environment to use the fork:
 
 ```bash
-# Verify current environment
-make envs-current
-
-# List all environments
-make envs-list
-
-# Start your app
-make up
-
-# Your app should now use dev environment
+export DATABASE_URL="libsql://alice-your-org.turso.io"
+export UPLOADS_BUCKET="my-app-uploads"
+export UPLOADS_PREFIX="forks/alice/"
 ```
 
-## Step 7: Create Your First Personal Environment
+Or use the fork URLs directly in your code/config.
+
+## Step 5: List and Delete Forks
 
 ```bash
-# Create personal environment
-make envs-new alice
+# List all forks
+$ forks list
+NAME            CREATED      DATABASE
+bright-wave-42  5 mins ago   libsql://bright-wave-42.turso.io
+alice           2 mins ago   libsql://alice.turso.io
 
-# This creates:
-# - Database: your-project-alice
-# - Bucket: your-project-bucket-alice
-# - Local DB: your-project.alice.db/
-# - Switches to alice environment
-
-# Restart your app
-make down && make up
-
-# Now you're working in isolated 'alice' environment!
+# Delete a fork (removes database and storage)
+$ forks delete alice
+Deleted fork: alice
 ```
+
+## Configuration Reference
+
+### Database Section
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `provider` | Yes | Database provider (`turso`) |
+| `organization` | Yes | Your Turso organization name |
+| `production` | Yes | Name of your production database |
+| `group` | No | Turso group name (default: `default`) |
+
+### Storage Section
+
+You can configure multiple storage buckets. Each bucket is identified by a key (e.g., `uploads`, `assets`):
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `provider` | Yes | Storage provider (`tigris`, `s3`) |
+| `bucket` | Yes | Bucket name |
+| `endpoint` | No | Custom S3 endpoint (for Tigris, R2, etc.) |
+| `region` | No | AWS region |
+| `prefix` | No | Prefix for fork data (default: `forks/`) |
+
+## What Happens When You Fork
+
+When you run `forks create`:
+
+1. **Database**: Creates a new Turso database branched from your production database using Turso's [database branching API](https://docs.turso.tech/api-reference/databases/create). This is a zero-copy operation - instant regardless of database size.
+
+2. **Storage**: For each configured bucket, copies all objects to a fork-specific prefix. This is a full copy (not zero-copy), so large buckets take longer.
+
+When you run `forks delete`:
+
+1. Deletes the Turso database
+2. Deletes all objects under the fork prefix in each bucket
 
 ## Next Steps
 
-### For Teams
-
-1. **Document the pattern** - Share this with your team
-2. **Set up CI/CD** - Use Fork Stack for preview environments
-3. **Add backup scripts** - Backup prod regularly
-
-### For Solo Developers
-
-1. **Create feature branches** - One environment per feature
-2. **Test risky changes** - Fork from prod to debug safely
-3. **Clean up regularly** - Delete old environments with `make envs-delete`
-
-## Troubleshooting
-
-### "Database/bucket already exists"
-
-If you get conflicts, manually check and delete:
-```bash
-# List databases
-turso db list
-
-# List buckets
-aws s3 ls
-
-# Delete manually
-turso db destroy your-project-alice -y
-aws s3 rb s3://your-project-bucket-alice --force
-```
-
-### "Wrong environment"
-
-Check which environment is active:
-```bash
-make envs-current
-cat .current-env
-```
-
-Switch to correct one:
-```bash
-make envs-switch dev
-make down && make up
-```
-
-### "Can't delete prod/dev"
-
-These are protected by default. Edit `PROTECTED_ENVS` in `scripts/envs.py` to change.
-
-## Advanced Topics
-
-- [Architecture Deep Dive](architecture.md) - How Fork Stack works internally
-- [Database Options](databases.md) - Detailed comparison of Turso vs Neon vs PlanetScale
-- [Storage Options](storage.md) - Tigris vs S3 vs R2
-- [CI/CD Integration](cicd.md) - Using Fork Stack in pipelines
+- [Architecture](architecture.md) - How forkstack works under the hood
+- [CI/CD Integration](cicd.md) - Using forkstack in pipelines

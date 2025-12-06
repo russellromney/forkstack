@@ -1,6 +1,6 @@
-# Fork Stack Architecture
+# forkstack Architecture
 
-This document explains how Fork Stack achieves instant, isolated development environments.
+This document explains how forkstack achieves instant, isolated development environments.
 
 ## Core Concepts
 
@@ -14,6 +14,7 @@ alice
 ```
 
 This file determines which environment all operations use. It's:
+
 - Git-ignored (per-developer, not shared)
 - Written by `make envs-switch`
 - Read by `get_current_env()`
@@ -49,18 +50,21 @@ def get_database_url() -> str:
 Each environment gets its own:
 
 **Database Branch**
+
 - Instant creation (copy-on-write)
 - Independent schema and data
 - Zero cost to create
 - Example: `myproject-alice.turso.io`
 
 **Storage Bucket Fork**
+
 - Instant creation (snapshot-based)
 - Independent object storage
 - Zero-copy (no duplication charges)
 - Example: `myproject-bucket-alice`
 
 **Local State**
+
 - Environment-specific directories
 - Example: `myproject.alice.db/`
 
@@ -205,7 +209,7 @@ $ make envs-delete prod
 3. Set up storage: 1-2 minutes
 **Total: 8-37 minutes**
 
-**Fork Stack approach:**
+**forkstack approach:**
 1. Branch database: 1-2 seconds
 2. Fork bucket: 2-3 seconds
 3. Write config: <1 second
@@ -218,7 +222,7 @@ $ make envs-delete prod
 - 3 dev environments
 - Cost: 400GB = $9.20/month (AWS S3)
 
-**Fork Stack:**
+**forkstack:**
 - 100GB prod data
 - 3 forked environments
 - Cost: ~100GB = $2.30/month (fork-on-write)
@@ -227,7 +231,7 @@ $ make envs-delete prod
 
 ### Team Size
 
-Fork Stack scales from 1 to 100+ developers:
+forkstack scales from 1 to 100+ developers:
 - Each developer gets isolated environments
 - No shared state or conflicts
 - Instant creation encourages experimentation
@@ -235,7 +239,7 @@ Fork Stack scales from 1 to 100+ developers:
 
 ### CI/CD
 
-Use Fork Stack for:
+Use forkstack for:
 - **Preview environments**: One per PR
 - **Integration testing**: Isolated test data
 - **QA environments**: Stable test environments
