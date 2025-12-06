@@ -110,6 +110,28 @@ make down && make up
 make envs-delete alice
 ```
 
+## Repository Structure
+
+Fork Stack uses a hybrid organization for maximum flexibility:
+
+```
+templates/
+├── base/{language}/           # Core pattern for each language
+├── implementations/           # Pluggable backends
+│   ├── databases/            # Turso, Neon, PlanetScale, etc.
+│   ├── storage/              # Tigris, S3, R2, etc.
+│   └── secrets/              # Doppler, AWS Secrets, Vault, etc.
+└── stacks/{lang-db-storage}/ # Pre-built combinations
+```
+
+**Three ways to use Fork Stack:**
+
+1. **Grab a pre-built stack** - Copy entire `stacks/python-turso-tigris/` directory
+2. **Mix and match** - Combine `base/python/` + implementations you want
+3. **Contribute** - Add new languages, databases, or storage backends
+
+See [IMPLEMENTATION.md](IMPLEMENTATION.md) for the full roadmap and architecture.
+
 ## Real-World Example
 
 See `examples/romneys-app/` for a complete FastAPI + Preact implementation using:
