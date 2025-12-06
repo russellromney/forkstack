@@ -7,7 +7,15 @@ forkstack is a CLI tool for creating fully isolated development environments in 
 ## Installation
 
 ```bash
+# Recommended: install script
 curl -LsSf https://forkstack.xyz/install.sh | sh
+
+# Or with pip/uv
+pip install forkstack
+uv pip install forkstack
+
+# Or with cargo
+cargo install forkstack --bin forks
 ```
 
 ## Why forkstack?

@@ -8,6 +8,9 @@ edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/russellromney/forkstack"
 homepage = "https://forkstack.xyz"
+authors = ["Russell Romney <russellromney@gmail.com>"]
+keywords = ["cli", "database", "development", "devtools", "turso"]
+categories = ["command-line-utilities", "development-tools"]
 
 [workspace.dependencies]
 clap = { version = "4", features = ["derive"] }

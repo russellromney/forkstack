@@ -5,7 +5,11 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 homepage.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
 description = "forkstack - instant, isolated development environments using zero-copy database and storage forks"
+readme = "../README.md"
 
 [lib]
 name = "forkstack"
