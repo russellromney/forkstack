@@ -33,22 +33,20 @@ detect_platform() {
 
 # Get latest release version
 get_latest_version() {
-    curl -sL "https://api.github.com/repos/${REPO}/releases/latest" | \
+    curl -sL "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null | \
         grep '"tag_name":' | \
-        sed -E 's/.*"([^"]+)".*/\1/'
+        sed -E 's/.*"([^"]+)".*/\1/' || echo ""
 }
 
-main() {
-    echo "Installing forkstack..."
-
+# Try to install from GitHub releases
+install_from_release() {
     local platform version download_url archive
 
     platform="$(detect_platform)"
     version="$(get_latest_version)"
 
     if [ -z "$version" ]; then
-        echo "Could not determine latest version. Using 'latest'."
-        version="latest"
+        return 1
     fi
 
     echo "  Platform: $platform"
@@ -63,28 +61,55 @@ main() {
 
     echo "  Downloading from: $download_url"
 
-    curl -LsSf "$download_url" | tar xz -C "$BIN_DIR"
+    if curl -LsSf "$download_url" 2>/dev/null | tar xz -C "$BIN_DIR" 2>/dev/null; then
+        chmod +x "$BIN_DIR/forks"
+        return 0
+    else
+        return 1
+    fi
+}
 
-    # Make executable
-    chmod +x "$BIN_DIR/forks"
+# Install via cargo
+install_from_cargo() {
+    if ! command -v cargo &> /dev/null; then
+        echo "Error: cargo not found. Install Rust from https://rustup.rs"
+        exit 1
+    fi
 
+    echo "  Building from source with cargo..."
+    cargo install forkstack --bin forks
+}
+
+main() {
+    echo "Installing forkstack..."
     echo ""
-    echo "forkstack installed to: $BIN_DIR/forks"
-    echo ""
 
-    # Check if bin dir is in PATH
-    case ":$PATH:" in
-        *":$BIN_DIR:"*)
-            echo "Run 'fks --help' to get started!"
-            ;;
-        *)
-            echo "Add the following to your shell config (.bashrc, .zshrc, etc.):"
-            echo ""
-            echo "  export PATH=\"$BIN_DIR:\$PATH\""
-            echo ""
-            echo "Then run 'fks --help' to get started!"
-            ;;
-    esac
+    # Try GitHub release first, fall back to cargo
+    if install_from_release; then
+        echo ""
+        echo "forkstack installed to: $BIN_DIR/forks"
+        echo ""
+
+        # Check if bin dir is in PATH
+        case ":$PATH:" in
+            *":$BIN_DIR:"*)
+                echo "Run 'forks --help' to get started!"
+                ;;
+            *)
+                echo "Add the following to your shell config (.bashrc, .zshrc, etc.):"
+                echo ""
+                echo "  export PATH=\"$BIN_DIR:\$PATH\""
+                echo ""
+                echo "Then run 'forks --help' to get started!"
+                ;;
+        esac
+    else
+        echo "  No prebuilt binary found, building from source..."
+        echo ""
+        install_from_cargo
+        echo ""
+        echo "forkstack installed! Run 'forks --help' to get started."
+    fi
 }
 
 main
