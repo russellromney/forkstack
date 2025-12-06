@@ -1,0 +1,43 @@
+# Fork Stack Environment Management Commands
+# Add these to your existing Makefile or use as standalone
+
+# Environment Commands
+.PHONY: envs-new envs-switch envs-delete envs-list envs-current
+
+envs-new:
+	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Usage: make envs-new <env-name>"; \
+		echo "Example: make envs-new alice"; \
+		exit 1; \
+	fi
+	@uv run python scripts/envs.py create $(filter-out $@,$(MAKECMDGOALS))
+
+envs-switch:
+	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Usage: make envs-switch <env-name>"; \
+		echo "Example: make envs-switch alice"; \
+		exit 1; \
+	fi
+	@uv run python scripts/envs.py switch $(filter-out $@,$(MAKECMDGOALS))
+
+envs-delete:
+	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Usage: make envs-delete <env-name>"; \
+		echo "Example: make envs-delete alice"; \
+		exit 1; \
+	fi
+	@uv run python scripts/envs.py delete $(filter-out $@,$(MAKECMDGOALS))
+
+envs-list:
+	@uv run python scripts/envs.py list
+
+envs-current:
+	@if [ -f .current-env ]; then \
+		echo "Current environment: $$(cat .current-env)"; \
+	else \
+		echo "No environment selected (will default to 'dev')"; \
+	fi
+
+# Allow passing environment name as argument
+%:
+	@:
