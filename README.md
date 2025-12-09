@@ -1,5 +1,7 @@
 # forkstack
 
+| Note: still in early dev
+
 **Instant, isolated development environments using zero-copy database and storage forks.**
 
 forkstack is a CLI tool for creating fully isolated development environments in seconds. Each developer gets their own copy of your entire stack—database and object storage—without duplicating data or slowing down.
